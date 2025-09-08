@@ -1,27 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useApiWithToasts } from '@/lib/http';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { Spinner } from '@/components/ui/spinner';
-import { Link } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
+
+const SeverityChart = lazy(() => import('./stats/SeverityChart').then(m => ({ default: m.SeverityChart })));
+const StatusChart = lazy(() => import('./stats/StatusChart').then(m => ({ default: m.StatusChart })));
+const RecentList = lazy(() => import('./stats/RecentList').then(m => ({ default: m.RecentList })));
 
 type SeverityKey = 'Critical' | 'High' | 'Medium' | 'Low' | 'Informational';
 type StatusKey = 'Open' | 'In Progress' | 'Resolved' | 'Closed';
-
-const SEVERITY_COLORS: Record<SeverityKey, string> = {
-  Critical: '#dc2626',
-  High: '#f97316',
-  Medium: '#facc15',
-  Low: '#3b82f6',
-  Informational: '#6b7280',
-};
-
-const STATUS_COLORS: Record<StatusKey, string> = {
-  Open: '#3b82f6',
-  'In Progress': '#f97316',
-  Resolved: '#22c55e',
-  Closed: '#6b7280',
-};
 
 interface StatsData {
   severities: Record<string, number>;
@@ -61,65 +48,15 @@ export function DashboardStats() {
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Vulnerabilities by Severity</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {severityData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={250}>
-              <PieChart>
-                <Pie data={severityData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} labelLine={false} label={({ name, percent }) => `${name} ${percent ? (percent * 100).toFixed(0) : 0}%`}>
-                  {severityData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={SEVERITY_COLORS[entry.name] || '#8884d8'} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value) => [value, 'Vulnerabilities']} />
-              </PieChart>
-            </ResponsiveContainer>
-          ) : <p className="text-center text-gray-500">No vulnerability data.</p>}
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Vulnerabilities by Status</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {statusData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={statusData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis allowDecimals={false} />
-                <Tooltip formatter={(value) => [value, 'Vulnerabilities']} />
-                <Bar dataKey="value">
-                  {statusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={STATUS_COLORS[entry.name] || '#82ca9d'} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          ) : <p className="text-center text-gray-500">No vulnerability data.</p>}
-        </CardContent>
-      </Card>
-      <Card className="md:col-span-2 lg:col-span-1">
-        <CardHeader>
-          <CardTitle>Recent Vulnerabilities</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {stats.recent.length > 0 ? (
-            <ul className="space-y-3">
-              {stats.recent.map(vuln => (
-                <li key={vuln.id} className="text-sm truncate">
-                  <Link to={`/vulnerabilities/${vuln.id}`} className="hover:underline">
-                    {vuln.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          ) : <p className="text-center text-gray-500">No recent vulnerabilities.</p>}
-        </CardContent>
-      </Card>
+      <Suspense fallback={<div className="h-64 flex items-center justify-center"><Spinner /></div>}>
+        <SeverityChart data={severityData as any} />
+      </Suspense>
+      <Suspense fallback={<div className="h-64 flex items-center justify-center"><Spinner /></div>}>
+        <StatusChart data={statusData as any} />
+      </Suspense>
+      <Suspense fallback={<div className="h-64 flex items-center justify-center"><Spinner /></div>}>
+        <RecentList items={stats.recent as any} />
+      </Suspense>
     </div>
   );
 }

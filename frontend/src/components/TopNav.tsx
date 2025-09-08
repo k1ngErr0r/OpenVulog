@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { Button } from './ui/button';
+import { ThemeSwitcher } from './ui/ThemeSwitcher';
 import { cn } from '../lib/utils';
 
 interface TopNavProps {
@@ -12,6 +13,7 @@ export function TopNav({ user, onLogout }: TopNavProps) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
+  // Users link now always visible; role kept if needed for future conditional logic
   const isAdmin = user?.role === 'admin';
 
   const baseLink = 'text-sm font-medium transition-colors px-3 py-2 rounded-md';
@@ -27,12 +29,11 @@ export function TopNav({ user, onLogout }: TopNavProps) {
         <div className="hidden md:flex items-center gap-1">
           <NavLink to="/" end className={({ isActive }) => cn(baseLink, isActive ? active : inactive)}>Dashboard</NavLink>
           <NavLink to="/vulnerabilities/new" className={({ isActive }) => cn(baseLink, isActive ? active : inactive)}>Add Vulnerability</NavLink>
-          {isAdmin && (
-            <NavLink to="/users" className={({ isActive }) => cn(baseLink, isActive ? active : inactive)}>Users</NavLink>
-          )}
+          <NavLink to="/users" className={({ isActive }) => cn(baseLink, isActive ? active : inactive)}>Users</NavLink>
           <NavLink to="/help" className={({ isActive }) => cn(baseLink, isActive ? active : inactive)}>Help</NavLink>
         </div>
         <div className="ml-auto hidden md:flex items-center gap-3">
+          <ThemeSwitcher />
           {user?.email && <span className="text-xs text-gray-400">{user.email}</span>}
           <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white" onClick={onLogout}>Logout</Button>
         </div>
@@ -45,12 +46,13 @@ export function TopNav({ user, onLogout }: TopNavProps) {
         <div className="md:hidden absolute top-14 left-0 right-0 bg-black/90 border-b border-white/10 px-4 pb-4 pt-3 space-y-1">
           <NavLink onClick={() => setOpen(false)} to="/" end className={({ isActive }) => cn('block', baseLink, isActive ? active : inactive)}>Dashboard</NavLink>
           <NavLink onClick={() => setOpen(false)} to="/vulnerabilities/new" className={({ isActive }) => cn('block', baseLink, isActive ? active : inactive)}>Add Vulnerability</NavLink>
-          {isAdmin && (
-            <NavLink onClick={() => setOpen(false)} to="/users" className={({ isActive }) => cn('block', baseLink, isActive ? active : inactive)}>Users</NavLink>
-          )}
+          <NavLink onClick={() => setOpen(false)} to="/users" className={({ isActive }) => cn('block', baseLink, isActive ? active : inactive)}>Users</NavLink>
           <NavLink onClick={() => setOpen(false)} to="/help" className={({ isActive }) => cn('block', baseLink, isActive ? active : inactive)}>Help</NavLink>
           <div className="pt-2 border-t border-white/5 flex items-center justify-between">
-            {user?.email && <span className="text-xs text-gray-400">{user.email}</span>}
+            <div className="flex items-center gap-2">
+              <ThemeSwitcher />
+              {user?.email && <span className="text-xs text-gray-400">{user.email}</span>}
+            </div>
             <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white" onClick={() => { setOpen(false); onLogout?.(); }}>Logout</Button>
           </div>
         </div>

@@ -17,7 +17,7 @@ export default defineConfig(() => {
       },
     },
     build: {
-      sourcemap: true,
+      sourcemap: process.env.VITE_VISUAL_DEBUG ? true : 'hidden',
       rollupOptions: {
         output: {
           manualChunks(id) {

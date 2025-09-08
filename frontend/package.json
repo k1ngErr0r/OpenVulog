@@ -5,16 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-  "build": "vite build",
-  "typecheck": "tsc --noEmit",
+    "build": "vite build",
+    "build:analyze": "ANALYZE=true vite build",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "analyze": "cross-env ANALYZE=true vite build",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
-  "build:storybook": "storybook build",
-  "test": "jest --runInBand"
+    "build:storybook": "storybook build",
+    "test": "jest --runInBand"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.0",
